@@ -1,0 +1,56 @@
+﻿@model IEnumerable<MileStone2A.Models.Product>
+
+@{
+    ViewBag.Title = "Bike Models";
+}
+
+<h2>Bike Models</h2>
+
+<table class="table" align="center">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Color)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ListPrice)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Size)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Weight)
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.ActionLink(@Html.DisplayFor(modelItem => item.Name).ToString(), "ProductDetails", new { id = item.ProductID }, new { @class = "otherlink" })
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Color)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ListPrice)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Size)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Weight)
+            </td>
+            <td>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="button" id="addToCartButton" value="Add to Cart" class="btn btn-default"  onclick="add_cart(@item.ProductID)"/>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    }
+
+</table>

@@ -1,0 +1,16 @@
+﻿@model IEnumerable<MileStone2A.Models.BikeListModel>
+
+@{
+    ViewBag.Title = "Mountain Bikes";
+}
+
+<h2>Mountain Bikes</h2>
+
+
+@foreach (var item in Model)
+{
+    @Html.ActionLink(@item.ProductModel, "Details", new { id = @item.ProductModelID }, new { @class = "list-brand" })
+    <br>
+    <p>@item.Description</p>
+    <br>
+}
