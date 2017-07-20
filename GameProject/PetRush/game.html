@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Pet Rush</title>
+<link rel="stylesheet" target=_blank href="lib/game.css" >
+<script src="lib/jquery-2.1.4.js"></script>
+<script src="lib/raf.js"></script>
+<script src="lib/jq-playsound.js"></script>
+<script>	
+$(document).ready(function() {		
+	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+					Global Variables
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/		
+	health		= 100;	// Current Health (maximum)
+	score		= 0;	// Current Score
+	scoreh		= 0;	// Score for happy points
+	happy		= 0;	// Current Happy Points
+	loves		= 3;	// Current Love Shield Count
+	hgoal		= 50;	// Goal for scoreh to reach before getting a happy point
+	hstring		= "█";	// Character used to build health bar
+	maxcolordex = 25;	// Maximum number of colors
+	fps 		= 60;	// FPS rate
+	ms 			= 1000; // Miliseconds
+	sprsize		= 32;	// Size of every sprite size
+	drawoffset	= 12;	// Offset for the drawn rectangles
+	lineWidth 	= 4;	// The width of lines being drawn
+	threshhold	= 0;	// Threshhold for collision
+	
+	// "Pretty Variables"; will almost be calculated nearly instantly
+	smindex = 1;	// Starting minimum colordex spawnable
+	smaxdex	= 4;	// Value to add to mindex to get maxdex
+	sminsr 	= 3;	// Starting minimum seconds for spawnrate	
+	smaxsr	= 2;	// Value to add to minsr to get maxsr
+	
+	mindex 	= smindex;			// Actual minimum colordex spawnable
+	maxdex	= smaxdex + mindex;	// Actual maximum colordex spawnable
+	minsr 	= sminsr;			// Actual minimum seconds for spawnrate	
+	maxsr	= smaxsr + minsr;	// Actual maximum seconds for spawnrate	
+	
+	spdd	= 50;	// Score per difficulty for dex appearance
+	spdr	= 5;	// Score per difficulty for spawn rate
+	
+	grctx 	 = $("#gameroom")[0].getContext("2d");	// Get canvas context	
+	grwidth	 = $("#gameroom").width();				// Canvas width
+	grheight = $("#gameroom").height();				// Canvas height
+	centerw  = grwidth / 2 - sprsize / 2; 			// Center width of canvas for sprites
+	centerh	 = grheight / 2 - sprsize / 2; 			// Center width of canvas for sprites	
+	
+	floor 	 = (grheight / 2 - drawoffset) * 2 - sprsize - lineWidth / 2; 	// Y coordinate for floor level
+	platform = grheight / 2 - sprsize - drawoffset - lineWidth / 2;			// Y coordinate for platform level
+	
+	/*~~~~~~~~~~~~~~~~~~~~~~~
+		 Button Settings
+	~~~~~~~~~~~~~~~~~~~~~~~*/
+	hidden = false;	// Bool for instructions hiding or not
+	soundfx = true;	// Bool for playing sound effects or not
+	
+	//Required to reset buttons 
+	$("#hideshow").attr( "disabled", false );
+	$("#togglesound").attr( "disabled", false );
+	$("#startgame").attr( "disabled", false );
+	$("#upspeed").attr( "disabled", true );
+	$("#uploves").attr( "disabled",true );
+	$("#uprate").attr( "disabled",true );
+	
+	/*~~~~~~~~~~~~~~~~~~~~~~~
+	 Corners for Rectangles
+	~~~~~~~~~~~~~~~~~~~~~~~*/
+	roff1 = -lineWidth;
+	roff2 = grwidth + drawoffset;
+	r1y = grheight / 2 - drawoffset;
+	r2x1 = grwidth / 2 - sprsize / 2 - lineWidth / 2;
+	r2x2 = sprsize + lineWidth;
+	
+	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			Create Instances and Run Frames
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+	player = new Player();	// Player Instance
+	pet    = []; 			// Pet Array
+	bullet = []; 			// Bullet Array "Love"
+	
+	frames(); 	// Run Frames (start game)
+
+	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+						Classes
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+	function Player() // Player Class
+	{	/*~~~~~~~~~~~~~~~~~~~~~~~
+			Class Variables
+		~~~~~~~~~~~~~~~~~~~~~~~*/
+		this.x = centerw; this.y = floor; // Spawn location			
+		
+		this.sprite = new Image();	this.sprite.src = "images/char_l.png"; // Sprite of class
+		
+		this.right   = false;	// Players directionection; if true, player faces right
+		this.floored = true;	// Players level; if true, player is at floor level
+		
+		this.bcd	= true;	// Switch indicating if able to fire bullet	
+		this.bbcd	= true;	// Switch indicating if able to fire Shield
+		this.bspd	= 1;	// Bullet speed (The higher the value, the further you shoot)
+		this.brate 	= 1;	// Bullet fire rate (The higher the value, the faster you shoot)
+		this.bdecay	= 1;	// Bullet decay rate (The higher the value, the longer it lasts)
+		
+		/*~~~~~~~~~~~~~~~~~~~~~~~
+			Class Functions
+		~~~~~~~~~~~~~~~~~~~~~~~*/			
+		this.move = function() {
+						if (this.floored)
+							this.y = floor;		// Send player to floor level
+						else
+							this.y = platform;	// Send player to platform level
+							
+						if (this.right)
+							this.sprite.src = "images/char_r.png";	// Player faces right
+						else
+							this.sprite.src = "images/char_l.png";	// Player faces left
+					}	
+					
+		this.attack = 	function() { 
+								if (this.bcd) {			// If bullet is ready
+									this.bcd = false;	// Turn cooldown on 
+									
+									if (this.right)
+										bullet.push(new Bullet(this.bspd, this.bdecay, 1, sprsize / 2));   	// Fire bullet right
+									else 
+										bullet.push(new Bullet(this.bspd, this.bdecay, -1, -sprsize / 2)); 	// Fire bullet left
+		
+									setTimeout(function() {	player.bcd = true;}, (ms/this.brate));			// Timer to refresh bullet cooldown
+								}
+						}	
+					
+		this.special = 	function() {
+								if (this.bbcd && loves > 0) { 		// If Shield is ready and if you have a Love Shield point
+									this.bbcd = false;				// Turn cooldown on
+									loves--;						// Take away Love Shield point
+									bullet.push(new Shield());  	// Fire bullet right		
+									
+									setTimeout(function() {	player.bbcd = true;}, (ms*3)); // Timer to refresh Shield cooldown
+								}
+						}
+	}
+	
+	function Pet(dex) // Pet Class
+	{	/*~~~~~~~~~~~~~~~~~~~~~~~
+			Class Variables
+		~~~~~~~~~~~~~~~~~~~~~~~*/					
+		this.sprite = new Image(); 	this.sprite.src = "images/colordex_" + dex + "_l.png"; // Sprite of class
+				
+		this.speed	= (dex * 0.5 + 1) / 1.5;	// Pet speed
+		this.dmgscr	= dex; 						// Pet score and damage (temper)
+					
+		this.floored = randbool();	// Randomly decide which floor
+		this.right = randbool();	// Randomly decide which direction
+		
+		// Get Pet Type
+		switch (dex % 5) {
+			case 0: this.pettype = "fishy"; break; 
+			case 1: this.pettype = "planty"; break; 
+			case 2: this.pettype = "birdy"; break; 
+			case 3: this.pettype = "doggy"; break; 
+			case 4: this.pettype = "kitty"; break; 
+		} 
+		
+		if (dex == 30)
+			this.pettype = "supersnail";
+		
+		if (this.floored)
+			this.y = floor;		// Send player to floor level
+		else
+			this.y = platform;	// Send player to platform level
+			
+		if (this.right) {
+			this.x = 0 - sprsize;									// Spawn behind left border
+			this.dir = 1;											// Will be running right
+			this.sprite.src = "images/colordex_" + dex + "_r.png";	// Set the sprite to it's right image
+		}
+		else {	
+			this.x = grwidth;										// Spawn behind right border
+			this.dir = -1;											// Will be running left
+			this.sprite.src = "images/colordex_" + dex + "_l.png";	// Set the sprite to it's left image
+		}
+		
+		/*~~~~~~~~~~~~~~~~~~~~~~~
+			Class Functions
+		~~~~~~~~~~~~~~~~~~~~~~~*/			
+		this.move = function(theindex) {
+						 this.x += this.speed * this.dir; // Move left if direction is -1 else right
+						 
+							if (this.x >= r2x1 - sprsize && this.x <= r2x1 + r2x2) { 	// If at player limits (damage zone)
+								health -= this.dmgscr;									// Reduce health by pets damage
+								pet.splice(theindex,1);									// Remove that pet
+							}
+					}	
+	}
+	
+	function Bullet(speed, decay, direction, boffset) // Bullet Class
+	{ 	/*~~~~~~~~~~~~~~~~~~~~~~~
+			Class Variables
+		~~~~~~~~~~~~~~~~~~~~~~~*/
+		this.x = player.x + boffset; this.y = player.y; // Spawn position, offset helps directionection
+		
+		this.sprite = new Image(); this.sprite.src = "images/bullet.png"; // Sprite of class
+		
+		this.decayTimeout = setTimeout(function() {	bullet.splice(this,1);}, (ms*decay));	// Decay the bullet
+							
+		/*~~~~~~~~~~~~~~~~~~~~~~~
+			Class Functions
+		~~~~~~~~~~~~~~~~~~~~~~~*/					
+		this.move = function() {
+						 this.x += speed * direction; // Move left if direction is -1 else right
+					}					
+								
+		this.bulcol = 	function(j) {
+							for (i = 0; i < pet.length; i++) 				// For every pet on stage
+								if (hittest(i, pet, j, bullet,false)) { 	// Check if collision
+									score += pet[i].dmgscr;					// Increase score by it's points given
+									scoreh += pet[i].dmgscr;				// Increase score by it's points given
+									if (soundfx)
+										$.playSound('sound/' + pet[i].pettype); // Play sound effect
+									pet.splice(i,1);							// Remove pet off stage
+									clearTimeout(this.decayTimeout);			// Prevents other bullets from decaying abnormally.
+									bullet.splice(this,1);						// Remove bullet off game
+									break;
+								}
+						}	
+	}
+	
+	function Shield() // Bullet Class
+	{ 	/*~~~~~~~~~~~~~~~~~~~~~~~
+			Class Variables
+		~~~~~~~~~~~~~~~~~~~~~~~*/
+		this.x = player.x - sprsize * 3.5; this.y = grheight / 2 - sprsize * 4; // Spawn position, offset helps directionection]
+		
+		this.sprite = new Image(); this.sprite.src = "images/shield.png"; 		// Sprite of class
+
+		if (soundfx)
+			$.playSound('sound/shield'); 	// Play sound effect
+			
+		this.move = function() {;}			// Absolutely nothing	
+		
+		this.bulcol = 	function(j) {
+							for (i = 0; i < pet.length; i++) {					// For every pet on stage															
+								if (pet[i].x + sprsize >= this.x && pet[i].x <= this.x + sprsize * 8)	// If pet is in heart Shield set collision boolean to true
+									this.petShieldcollision = true;				// Collision is happening
+								else
+									this.petShieldcollision = false;			// Collision isn't happening
+								
+								if (this.petShieldcollision) { 					// Check if collision
+									score += pet[i].dmgscr;						// Increase score by it's points given
+									scoreh += pet[i].dmgscr;					// Increase score by it's points given
+									if (soundfx)
+										$.playSound('sound/' + pet[i].pettype); // Play sound effect
+									pet.splice(i,1);							// Remove pet off stage
+								}	
+							}	
+						}
+							
+		decayTimeout = setTimeout(function() {	bullet.splice(this,1);}, (ms*2));	// Decay the bullet
+	}
+	
+	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+					 Spawn Function
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/		
+	function spawn()
+	{	/*~~~~~~~~~~~~~~~~~~~~~~~
+			 Calculate Dex
+		~~~~~~~~~~~~~~~~~~~~~~~*/
+		if (mindex < maxcolordex - smaxdex) {				// If mindex hasn't reached it's limit
+			mindex = smindex + Math.floor(score / spdd); 	// Calculate min using score
+			maxdex = mindex + smaxdex; 						// Calculate max using mindex
+			
+			randex = Math.floor(Math.random() * (1 + maxdex - mindex)) + mindex; // Gets Random between min and max inclusive		
+		}
+		else 
+			randex = Math.floor(Math.random() * (1 + maxdex - mindex)) + mindex; // Gets Random between min and max inclusive		
+		
+		/*~~~~~~~~~~~~~~~~~~~~~~~
+				Super Snail
+		~~~~~~~~~~~~~~~~~~~~~~~*/
+		sdex = Math.floor(Math.random() * 100) + 1;	// Randomizer for Super Snail
+		
+		if (sdex == 30)	{							// If sdex is Super Snail's dex
+			if (soundfx)
+				$.playSound('sound/ssspawn'); 		// Play sound effect
+			randex = 30;							// Set randex to Super Snail's dex
+		}	
+	
+				
+		pet.push(new Pet(randex)); // Spawn one instance of Pet using randex as it's difficulty
+	
+		/*~~~~~~~~~~~~~~~~~~~~~~~
+		  Calculate Spawn Rate
+		~~~~~~~~~~~~~~~~~~~~~~~*/
+		if (minsr >= 0.1) {									// If minsr hasn't reached it's limit
+			minsr = sminsr - Math.floor(score / spdr) / 10; // Calculate min using score
+			maxsr = minsr + smaxsr; 						// Calculate max using minsr
+			
+			spawntime = (Math.random() * (maxsr - minsr)) + minsr; // Gets Random between min and max inclusive		
+		}
+		else 
+			spawntime = (Math.random() * (maxsr - minsr)) + minsr; // Gets Random between min and max inclusive		
+			
+		if (fps > 0) // If Game still running
+			setTimeout(function() {
+						requestAnimationFrame(spawn);
+						}, (ms*spawntime));	
+	}
+
+	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+						   Draw
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/		
+	function draw()
+	{	/*~~~~~~~~~~~~~~~~~~~~~~~
+		Gradient Settings & Style
+		~~~~~~~~~~~~~~~~~~~~~~~*/			
+		gradient = grctx.createLinearGradient(0,0, grwidth, grheight);
+		gradient.addColorStop("0", "black");
+		gradient.addColorStop("0.5", "gray");
+		gradient.addColorStop("1.0", "black");			
+		grctx.strokeStyle	= gradient;
+		grctx.lineWidth 	= lineWidth;	
+							
+		/*~~~~~~~~~~~~~~~~~~~~~~~
+			Draw Rectangles
+		~~~~~~~~~~~~~~~~~~~~~~~*/			
+		grctx.strokeRect(roff1, r1y, roff2, r1y);
+		grctx.strokeRect(r2x1, roff1, r2x2, roff2);
+				
+		/*~~~~~~~~~~~~~~~~~~~~~~~
+				Draw Classes
+		~~~~~~~~~~~~~~~~~~~~~~~*/			
+		grctx.drawImage(player.sprite,player.x,player.y); // Player Draw
+		
+		
+		$.each(pet, function(index, en) { // Pet Draw
+			grctx.drawImage(this.sprite,this.x,this.y);
+		});		
+		
+		$.each(bullet, function(index, en) { // Bullet Draw
+			grctx.drawImage(en.sprite,en.x,en.y);				
+		});		
+	}
+
+	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+				 Draw Outside of Canvas
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/		
+	function drawout()
+	{	
+		$("#sval").text(score); // Clear string
+		$("#hval").text(happy); // Clear string
+		$("#lval").text(loves); // Clear string
+		$("#curh").text(""); 	// Clear string
+		$("#mish").text(""); 	// Clear string
+		
+		$("#tstring").text("Temper (" + health + "%): "); // Refresh string		
+		
+		chealth = Math.floor(health / 5); 		// Amount of bars to output
+		mhealth = 20 - Math.floor(health / 5); 	// Amount of bars to output
+		
+		ophealth = ""; 					// Reset process string
+		for (i = 0; i < chealth; i++) {
+		ophealth += hstring; 			// Process ophealth with health bars
+		}
+		$("#curh").text(ophealth); 		// Return new value
+		ophealth = ""; 					// Reset process string
+		for (i = 0; i < mhealth; i++) {
+		ophealth += hstring; 			// Process ophealth with health bars	
+		}
+		$("#mish").text(ophealth); 		// Return new value
+					
+		// Update button strings for bspd and brate upgrade
+		if (player.bspd < 5) 	// If brate isn't maxed out
+			$("#upspeed").text('(V) Up Love Speed || Current Stat: ' + player.bspd);
+		else
+			$("#upspeed").text('Love Speed MAXED || Stat: ' + player.bspd);	
+			
+		if (loves < 10) 		// If brate isn't maxed out
+			$("#uploves").text('(B) Get Another Love Shield');
+		else
+			$("#uploves").text('Love Shield MAXED');
+				
+		if (player.brate < 3) 	// If brate isn't maxed out
+			$("#uprate").text('(N) Up Love Rate || Current Stat: ' + player.brate);
+		else
+			$("#uprate").text('Love Rate MAXED || Stat: ' + player.brate);
+			
+		
+		if (happy > 0) {	// If there are happy points, enable buttons... Else disable them
+			if (player.bspd < 5) 	//If bspd isn't maxed out
+				$("#upspeed").attr( "disabled", false );
+			else
+				$("#upspeed").attr( "disabled", true );	
+				
+			if (loves < 10) 		//If loves isn't maxed out
+				$("#uploves").attr( "disabled", false );
+			else
+				$("#uploves").attr( "disabled",true );
+				
+			if (player.brate < 3) 	//If brate isn't maxed out
+				$("#uprate").attr( "disabled", false );
+			else
+				$("#uprate").attr( "disabled",true );
+		}
+		else {
+			$("#upspeed").attr( "disabled", true );
+			$("#uploves").attr( "disabled",true );
+			$("#uprate").attr( "disabled",true );
+		}
+	}
+	
+	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+						 Hit Test
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/		
+	function hittest(aIndex,aArray,bIndex,bArray,Shield)
+	{	/*~~~~~~~~~~~~~~~~~~~~~~~
+			   A Variables
+		~~~~~~~~~~~~~~~~~~~~~~~*/
+		aradius = sprsize / 2;
+		ax = aArray[aIndex].x;
+		ay = aArray[aIndex].y;
+		
+		/*~~~~~~~~~~~~~~~~~~~~~~~
+			   B Variables
+		~~~~~~~~~~~~~~~~~~~~~~~*/	
+		if (Shield)
+			bradius = sprsize * 4;		
+		else
+			bradius = sprsize / 2;	
+			
+		bx = bArray[bIndex].x;
+		by = bArray[bIndex].y;	
+		
+		/*~~~~~~~~~~~~~~~~~~~~~~~
+			Check Collision
+		~~~~~~~~~~~~~~~~~~~~~~~*/			
+		dx = Math.abs(ax-bx);		
+		dy = Math.abs(ay-by);
+		h = Math.sqrt(dx*dx + dy*dy) - (aradius + bradius);
+		
+		if (h < threshhold)
+			return true;
+		else
+			return false;
+	}	
+			
+	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+					 Random Boolean
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/		
+	function randbool()
+	{	
+		x = Math.floor(Math.random() * 2); // Gets 0 or 1 to return a bool instead of a number
+		
+		if (x == 0)
+			return true;
+		else
+			return false;
+	}	
+	
+	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+				Upgrade/Shop Functions
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/		
+	function upgradespeed()
+	{
+		if (happy > 0 && player.bspd < 5) {
+			happy--;
+			player.bspd += 1;
+		}
+		else 
+			$("#upspeed").attr( "disabled", true );	
+	}		
+	
+	function purchaseShield() 
+	{
+		if (happy > 0 && loves < 10) {
+			happy--;
+			loves++;	
+		}
+		else
+			$("#uploves").attr( "disabled",true );
+	}
+	
+	function upgraderate() 
+	{	
+		if (happy > 0 && player.brate < 3) {
+			happy--;
+			player.brate += 0.5;
+			player.bdecay -= 0.05;
+		}
+			$("#uprate").attr( "disabled",true );
+	}
+	
+	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+					Player Key Input
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/		
+	$(document).keydown(function(e) {
+		switch(e.keyCode) {
+			case 37: // Left
+				player.right = false;
+				break;
+
+			case 38: // Up
+				player.floored = false;
+				break;
+
+			case 39: // Right
+				player.right = true;
+				break;
+
+			case 40: // Down
+				player.floored = true;
+				break;
+
+			case 32: // Space
+				player.attack();
+				break;
+				
+			case 16: // Shift
+				player.special();
+				break;
+				
+			case 86: // V
+				upgradespeed();
+				break;
+				
+			case 66: // B
+				purchaseShield();
+				break;
+				
+			case 78: // N
+				upgraderate();
+				break;
+		}
+	});
+
+	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+						Buttons
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/			
+	$("#hideshow").click(function(){	// Hides or shows instructions
+		if (hidden) {
+			$("#hider").show();
+			$(this).text('Click Here to Hide Instructions');
+			hidden = false;
+		}
+		else {
+			$("#hider").hide();
+			$(this).text('Click Here to Show Instructions');
+			hidden = true;
+		}
+		$(this).blur();
+    }); 
+	
+	$("#startgame").click(function(){	// Reset everything & starts game
+		$(this).attr( "disabled", true );	
+		health			= 100;	
+		score			= 0;
+		scoreh			= 0;
+		happy			= 0;
+		loves			= 3;	
+		hgoal			= 50;	
+		player.bspd 	= 1;
+		player.brate 	= 1;
+		player.bdecay 	= 1;
+		fps 			= 60;
+		mindex 	= smindex;
+		maxdex	= smaxdex;
+		minsr 	= sminsr;	
+		maxsr	= smaxsr;		
+		pet.splice(0,pet.length + 1);		
+		frames();
+		spawn();
+		$("#music")[0].play();
+		$(this).blur();
+    }); 
+		
+	$("#togglesound").click(function(){	// Toggles Sound Effects
+		if (soundfx) {
+			$(this).text('Enable Sounds');
+			soundfx = false;
+		}
+		else {
+			$(this).text('Disable Sounds');
+			soundfx = true;
+		}
+		$(this).blur();
+    }); 
+		
+	$("#upspeed").click(function(){		// Upgrade Bullet Speed
+		upgradespeed();
+		if (happy < 1)
+			$(this).attr( "disabled", true );
+		$(this).blur();
+    }); 
+		
+	$("#uprate").click(function(){		// Upgrade Bullet Reload Rate
+		upgraderate();
+		if (happy < 1)
+			$(this).attr( "disabled", true );
+		$(this).blur();
+    }); 
+	
+	$("#uploves").click(function(){		// Purchase Love Shield
+		purchaseShield();
+		if (happy < 1)
+			$(this).attr( "disabled", true );	
+		$(this).blur();
+    }); 
+
+	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+						Main Loop
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+	function frames() 
+	{	/*~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Refreshing Frames and Canvas
+		~~~~~~~~~~~~~~~~~~~~~~~~~~*/			
+		if (fps > 0) // If Game still running
+			setTimeout(function() {
+						requestAnimationFrame(frames);
+						}, (ms/fps));	
+							
+		grctx.clearRect(0,0,grwidth,grheight);
+				
+		/*~~~~~~~~~~~~~~~~~~~~~~~
+			  Step Function
+		~~~~~~~~~~~~~~~~~~~~~~~*/	
+		if (scoreh >= hgoal) {	// If ready to distribute happy point
+			scoreh -= hgoal;
+			hgoal += 10;
+			happy++;
+		}	
+		
+		player.move();	// Run player move
+		
+		for (i = 0; i < pet.length; i++) { // Run all pet's move
+			pet[i].move(i);		
+		}
+			
+		for (j = 0; j < bullet.length; j++) { // Run all bullet's move and collision check
+			bullet[j].move();		
+			bullet[j].bulcol(j);		
+		}
+				
+		/*~~~~~~~~~~~~~~~~~~~~~~~
+			  Check If Lose
+		~~~~~~~~~~~~~~~~~~~~~~~*/		
+		if (health <= 0) {
+			grctx.clearRect(0,0,grwidth,grheight);
+			health = 0;	
+			$("#startgame").attr( "disabled", false );
+			$("#startgame").text('Game Over! Play Again?');
+			fps = 0;	
+		}		
+		
+		/*~~~~~~~~~~~~~~~~~~~~~~~
+			Redraw Everything
+		~~~~~~~~~~~~~~~~~~~~~~~*/			
+		draw();				
+		drawout();									
+	}	
+});	
+</script>
+</head>
+<body>
+<h1 id="title">Pet Rush</h1> 
+<div id="hider">
+<p id="instructions"><u>Instructions:</u> 
+In this game, you are the Caretaker in the middle of the canvas. Your goal is to provide care for the pets that are coming at you. 
+There are two floors, pressing <font color="red">UP, DOWN, LEFT, RIGHT</font> will allow you to change floors and directions. 
+You press <font color="red">SPACEBAR</font> to fire <strong style="color: pink">Love</strong> towards the direction you're facing. 
+If you're in a sticky situation, you can use <font color="red">SHIFT</font> to put up a heart sheild that'll protect you from incoming pets.
+But be cautious though, you only start with three and can get more from the buttons under the canvas using Happy Points. 
+Every 50 score you will earn a <strong>Happy Point</strong> which you can assign using the buttons under the canvas and power yourself up, 
+but, every time you get a Happy Point, the score to reach is increased by 10 (EX: To get 2 Happy Points you need 50 for the first, and 60 for the second).
+Happy Points are used for upgrades and getting Love Shields. You can also use <font color="red">V, B, N</font> buttons instead of pressing the buttons.
+If a pet happens to reach your limit bars, they'll cause you to lose your temper, so you want to keep your temper as composed as possible! 
+As your score goes higher, the difficulty of the pets gets higher. The difficulty comes in 5 different pets and 5 different stages. 
+
+<br><br>
+
+The order of the pets are: <strong>Planty, Birdy, Doggy, Kitty, and Fishy.</strong><br> 
+The order of the stages are: <strong>Normal, Red, Blue, Green, and Invert.</strong><br>
+
+<br>
+
+Right, I forgot to mention. There is also a 1/100 chance that the <strong style="color: gold">Super Snail</strong> can appear instead.
+</p>
+</div>
+<br>
+<button id="hideshow">Click Here to Hide Instructions</button><br><br>
+<button id="startgame">Start Game</button><br>
+<div id="float1"><h2 id="sstring">Player Score:</h2><h2 id="sval"></h2></div>
+<div id="stats">
+	<div id="float3"><h2 id="lstring">Love Shield:</h2><h2 id="lval"></h2></div>
+	<div id="float2"><h2 id="hstring">Happy Points:</h2><h2 id="hval"></h2></div>
+</div>
+<h2 id="tstring">Temper:</h2><div id="hbar"><h2 id="curh"></h2><h2 id="mish"></h2></div><br>
+<canvas id="gameroom" width="1024" height="256"></canvas>
+	<br><button id="upspeed">(V) Up Love Speed || Current Stat: 0</button>
+	<button id="uploves">(B) Get Another Love Shield</button>
+	<button id="uprate">(N) Up Love Rate || Current Stat: 0</button><br><br><br>
+<audio controls loop id="music">
+	<source src="sound/gamemusic.mp3" type="audio/mpeg">
+	Your browser does not support the audio element.
+</audio><br><br>
+<button id="togglesound">Disable Sounds</button>
+<div id="audiohider" style="display: none">ayy</div>
+</body>
+</html>	

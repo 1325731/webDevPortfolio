@@ -1,0 +1,109 @@
+html {
+width : 100%;
+height : 12%;
+margin : 0;
+padding : 0;
+background-color : #172440;
+}
+
+body {
+position : static;
+margin : 0;
+padding : 0;
+width : 100%;
+background-color : #172440;
+color : white;
+font-family : "Century Gothic", "CenturyGothic", "AppleGothic", sans-serif;
+font-size : 16px;
+overflow : auto;
+}
+
+section {
+margin : auto;
+height : 500px;
+}
+
+#wrapperback {
+position : static;
+background-color : #172440;
+}
+
+#wrapperfront {
+margin : 0 10px;
+padding : 20px;
+background-color : rgba(74, 133, 157, 0.4);
+}
+
+#wrapperarticle {
+margin : 0;
+padding : 10px;
+border-radius : 20px;
+background-color : rgba(64, 51, 103, 1);
+}
+
+button {
+background : rgba(92, 138, 130, 1);
+border-radius : 20px;
+color : #fff;
+font-family : "Century Gothic", "CenturyGothic", "AppleGothic", sans-serif;
+font-size : 15px;
+height : 30px;
+width : 100px;
+line-height : 30px;
+margin : 10px 1px;
+text-align : center;
+border : 0;
+opacity : 1;
+text-shadow : 0 0 10px white;
+transition : all 0.3s 0s ease;
+}
+
+button:hover {
+background : rgba(78, 116, 110, 1);
+border-radius : 50%;
+transition : all 0.3s 0s ease;
+}
+
+a {
+font-size : 15px;
+text-decoration : none;
+color : #FFEBCB;
+font-size : 18px;
+}
+
+a:hover {
+color : #4A859D;
+}
+
+h1, h2, h3, h4, h5, p {
+margin : 0;
+}
+
+td {
+width : 50%;
+padding : 2px;
+}
+
+table {
+width : 100%;
+text-align : left;
+font-size : 18px;
+}
+
+th {
+border-bottom-style : dotted;
+}
+
+tr:hover {
+border : red thick;
+background-color : #8279A3;
+}
+
+
+article {
+height : 100%;
+}
+
+p {
+text-align : justify;
+}

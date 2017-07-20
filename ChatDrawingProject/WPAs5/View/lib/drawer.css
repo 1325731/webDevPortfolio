@@ -1,0 +1,35 @@
+html { background-color: rgb(220,230,240); overflow: hidden; }
+
+body, #sizes pre, #tools pre, #clear { text-align:center; font: 10.5px "Lucida Sans Unicode", "Lucida Grande", sans-serif; overflow: hidden; }
+
+body { width: 680px; height: 680px; color: rgb(120,120,180);}
+
+/* Borders */
+#can, .colors, .jscolor, #sizes, #tools, #clear { border: 1px solid; border-color: #D8D8D8 #808080 #808080 #D8D8D8; }
+
+#can { float:left; background: #FFF; overflow: hidden; cursor: default;}
+
+#sidebar { float:left; }
+
+.colors, .jscolor, #sizer { height: 16px; width: 64px; cursor: pointer; }
+
+.jscolor { margin: 17.5px 0; }
+
+#sizes, #tools, #clear { background: linear-gradient(to bottom, rgba(216,216,216,0.5) 0%, rgba(128,128,128,0.5) 100%);}
+
+#tools{ margin: 32px 0; }
+
+#sizes pre, #tools pre, #clear { cursor: pointer; margin: 2px auto; }
+
+#sizes hr, #tools hr  { margin: 0; }
+
+h2 { margin: 0; padding: 0px; }
+
+.clickeds { color: red; }
+.clickedt { color: red; }
+
+#results {
+    width:30px;
+    height:30px;
+    border:1px solid blue;
+}

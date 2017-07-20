@@ -1,0 +1,256 @@
+/***********
+ Main CSS
+************/
+
+body {
+width:1024px;
+margin: 0px auto;
+
+font: 400 0.8em verdana, arial, sans-serif;
+
+border: 2px solid #363636;
+background: -o-linear-gradient(top, rgba(217,217,153,1,1) 20%,rgba(200,200,100,1) 100%);
+background: -ms-linear-gradient(top, rgba(217,217,153,1,1) 20%,rgba(200,200,100,1) 100%);
+background: linear-gradient(to bottom, rgba(217,217,153,1) 20%,rgba(180,150,100,1) 100%);
+}
+h1 {
+font: 700 2.5em "trebuchet ms", serif;
+color: #FFF;
+}
+h2 {
+font: 400 1.5em "trebuchet ms", serif;
+color: #FF9C40;
+}
+h3 {
+font: 400 1.3em "trebuchet ms", serif;
+margin-bottom: 10px;
+color: #FFFC40;
+}
+pre {
+font: 400 1.3em "trebuchet ms", serif;
+color: #FFFC40;
+}
+u {
+color: #FF6C40;
+}
+ol, ul {
+margin: 10px 30px;
+padding: 0;
+}
+ol {
+color: #FC0;
+}
+a {
+color: #FFD;
+}
+a:hover {
+color: #FFF;
+}
+
+/***********
+ Header CSS
+************/
+
+#menu {
+padding: 5px 0px 20px 0px;
+
+text-align: center;
+font: 200 150% "trebuchet ms", serif;
+
+color: #CC3300;
+border: 2px solid #363636;
+background-color: #363636;
+}
+#links {
+margin: 10px 0px 0px 0px;
+}
+#links a{
+text-decoration: none;
+text-align : center;
+font: 400 100% "trebuchet ms", serif;
+color: #FFD;
+
+transition : all 0.3s 0s ease;
+border-radius : 20px;
+height : 30px;
+width : 100px;
+padding: 2px 5px;
+margin: 0 2px;
+background : rgba(209, 129, 0, 1);
+border-width: 1px;
+border-style: solid;
+border-color: #caa158 #a75300 #a75300 #caa158;
+}
+#links a:hover{
+background : rgba(189, 109, 0, 1);
+border-radius : 50%;
+transition : all 0.3s 0s ease;
+}
+#menu img  {
+margin: 0;
+padding: 0;
+}
+#backboard {
+background-color: rgba(54,54,54,0.5);
+}
+
+/***********
+ Index CSS
+************/
+
+#hours {
+float: left;
+width: 300px;
+height: 800px;
+margin: 20px 10px 20px 20px;
+padding: 5px;
+
+overflow:hidden;
+text-align: center;
+font: 200 100% "trebuchet ms", serif;
+
+color: #FFF;
+border: 2px solid #363636;
+background-color: rgba(54,54,54,0.5);
+}
+#pics {
+float: right;
+height: 800px;
+margin: 20px 20px 20px 0px;
+padding: 5px;
+
+text-align: center;
+font: 200 100% "trebuchet ms", serif;
+
+color: #FFF;
+border: 2px solid #363636;
+background-color: rgba(54,54,54,0.5);
+}
+.display {
+width: 620px;
+height: 390px;
+margin: 5px;
+}
+
+/***********
+ Menu CSS
+************/
+
+#prices {
+margin: 4px 20px 20px 20px;
+
+overflow:hidden;
+text-align: left;
+font: 200 17px "trebuchet ms", serif;
+
+color: #FFF;
+border: 2px solid #363636;
+background-color: rgba(54,54,54,0.5);
+}
+#prices h2,p{
+text-align: center;
+}
+#prices p{
+font-size: 80%;
+}
+#menus {
+height: 470px;
+margin: 20px 20px 4px 20px;
+padding: 5px;
+
+text-align: center;
+font: 200 17px "trebuchet ms", serif;
+
+color: #FFF;
+border: 2px solid #363636;
+background-color: rgba(54,54,54,0.5);
+}
+#pizzaprice, #pastaprice {
+float: left;
+padding: 5px;
+margin: 0px 10px 10px 10px;
+}
+#pastaprice {
+float: right;
+}
+tr td  {
+padding: 2px 10px;
+}
+tr td:first-child  {
+color: #FF6C40;	
+text-decoration: underline;
+}
+.menupics{
+width: 440px;
+height: 320px;
+margin: 5px;
+}
+
+/***********
+ Login CSS
+************/
+
+#login {
+float: left;
+width: 45.6%;
+height: 800px;
+margin: 20px 10px 20px 20px;
+padding: 5px;
+
+overflow:hidden;
+text-align: center;
+font: 200 100% "trebuchet ms", serif;
+
+color: #FFF;
+border: 2px solid #363636;
+background-color: rgba(54,54,54,0.5);
+}
+#register {
+float: right;
+width: 45.5%;
+height: 800px;
+margin: 20px 20px 20px 0px;
+padding: 5px;
+
+text-align: center;
+font: 200 100% "trebuchet ms", serif;
+
+color: #FFF;
+border: 2px solid #363636;
+background-color: rgba(54,54,54,0.5);
+}
+.register-form form input{padding: 5px;}
+.register-form .btn{background: #726E6E;
+padding: 7px;
+border-radius: 5px;
+text-decoration: none;
+display: inline-block;
+color: #FFF;}
+
+/***********
+  Order CSS
+************/
+
+#ordering{
+width: 95%;
+margin: 4px 1px 0px 20px;
+height: 800px;
+padding: 5px;
+padding-right: 3px;
+
+overflow:hidden;
+text-align: center;
+font: 200 100% "trebuchet ms", serif;
+
+color: #FFF;
+border: 2px solid #363636;
+background-color: rgba(54,54,54,0.5);
+}
+
+#orderform input{
+width: 40px;
+}
+
+#orderform #atc{
+width: 120px;
+}

@@ -1,0 +1,107 @@
+html {	
+background: #012;
+}
+canvas {	
+border: 2px solid;
+border-color: #D8D8D8  #808080 #808080 #D8D8D8;
+background: linear-gradient(to bottom, rgba(172, 166, 157,1) 0%,rgba(252, 246, 237,1) 90%, rgba(150, 111, 51,1) 90%);	
+}
+body {
+width: 1028px;
+position: fixed;
+left: 50%;
+transform: translate(-50%, 2%);
+font: 100% "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+color: #EEE;
+}
+button {
+font: 100% "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+color: #EEE;
+border: 1px solid;
+cursor: pointer;
+padding: 4px;
+background: linear-gradient(to bottom, rgba(216,216,216,0.5) 60%, rgba(128,128,128,0.5) 70%);	
+border-color: #D8D8D8 #808080 #808080 #D8D8D8;
+}
+button:hover {
+background: linear-gradient(to bottom, rgba(216,216,216,0.5) 20%, rgba(128,128,128,0.5) 70%);	
+}
+button:disabled { 
+background: rgba(128,128,128,0.5);	
+color: #777;
+border-color: #404040;
+}
+#title {
+text-align: center;
+font: 200% "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+margin-top: 0;
+}
+#instructions {
+text-align: justify;
+}
+#stats {
+float: right;
+width: 500px;
+}
+#float1 {
+padding: 0 10px;
+float: left;
+width: 45%;
+background: rgba(128,128,128,0.25);	
+}
+#float2 {
+padding: 0 10px;
+float: left;
+width: 45%;
+background: rgba(128,128,128,0.25);	
+}
+#float3 {
+padding: 0 10px;
+float: right;
+width: 45%;
+background: rgba(128,128,128,0.25);	
+}
+#sstring, #hstring, #lstring {
+float: left;
+margin: 5px 0;
+}
+#sval, #hval, #lval  {
+float: right;
+margin: 5px 0;
+}
+#tstring {
+float: left;
+margin: 5px 0;
+}
+#hbar {
+float: right;
+}
+#curh {
+color:lime;
+margin: 5px 0;
+float: left;
+}
+#mish {
+color: red;
+margin: 5px 0;
+float: right;
+}
+#hideshow, #startgame, audio, #togglesound {
+position: fixed;
+left: 50%;
+transform: translate(-50%, -50%);
+}
+#upspeed {
+float: left;
+width: 35%;
+}
+#uprate {
+float: right;
+width: 35%;
+}
+#uploves {
+position: fixed;
+left: 50%;
+transform: translate(-50%, 0);
+width: 25%;
+}

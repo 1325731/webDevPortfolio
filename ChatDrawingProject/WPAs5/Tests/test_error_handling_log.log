@@ -1,0 +1,44 @@
+[02-Nov-2016 15:18:12 UTC] PHP Fatal error:  Uncaught exception 'mysqli_sql_exception' with message 'You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '?,?, now()' at line 1' in /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php:45
+Stack trace:
+#0 /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php(45): mysqli->prepare('insert into use...')
+#1 /home/ubuntu/workspace/Assgt_07/Debug/Tests/test_DB_messages.php(70): store_message(Object(mysqli), 'Bob', 'This is message...')
+#2 {main}
+  thrown in /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php on line 45
+[02-Nov-2016 15:22:20 UTC] PHP Fatal error:  Uncaught exception 'mysqli_sql_exception' with message 'Unknown column 'message' in 'field list'' in /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php:45
+Stack trace:
+#0 /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php(45): mysqli->prepare('insert into use...')
+#1 /home/ubuntu/workspace/Assgt_07/Debug/Tests/test_DB_messages.php(70): store_message(Object(mysqli), 'Bob', 'This is message...')
+#2 {main}
+  thrown in /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php on line 45
+[02-Nov-2016 15:24:04 UTC] PHP Fatal error:  Uncaught exception 'mysqli_sql_exception' with message 'No data supplied for parameters in prepared statement' in /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php:49
+Stack trace:
+#0 /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php(49): mysqli_stmt->execute()
+#1 /home/ubuntu/workspace/Assgt_07/Debug/Tests/test_DB_messages.php(70): store_message(Object(mysqli), 'Bob', 'This is message...')
+#2 {main}
+  thrown in /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php on line 49
+[02-Nov-2016 15:39:29 UTC] PHP Fatal error:  Uncaught exception 'mysqli_sql_exception' with message 'No data supplied for parameters in prepared statement' in /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php:49
+Stack trace:
+#0 /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php(49): mysqli_stmt->execute()
+#1 /home/ubuntu/workspace/Assgt_07/Debug/Tests/test_DB_messages.php(70): store_message(Object(mysqli), 'Bob', 'This is message...')
+#2 {main}
+  thrown in /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php on line 49
+[02-Nov-2016 15:40:03 UTC] PHP Fatal error:  Uncaught exception 'mysqli_sql_exception' with message 'Unknown column 'id' in 'field list'' in /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php:124
+Stack trace:
+#0 /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php(124): mysqli->prepare('select id,usern...')
+#1 /home/ubuntu/workspace/Assgt_07/Debug/Tests/test_DB_messages.php(73): get_latest_messages(Object(mysqli), 'x', 'bob')
+#2 {main}
+  thrown in /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php on line 124
+[02-Nov-2016 15:40:41 UTC] PHP Fatal error:  Uncaught exception 'mysqli_sql_exception' with message 'Unknown column 'msg' in 'field list'' in /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php:124
+Stack trace:
+#0 /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php(124): mysqli->prepare('select id,usern...')
+#1 /home/ubuntu/workspace/Assgt_07/Debug/Tests/test_DB_messages.php(73): get_latest_messages(Object(mysqli), 'x', 'bob')
+#2 {main}
+  thrown in /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php on line 124
+[02-Nov-2016 15:40:55 UTC] PHP Fatal error:  Call to undefined function int() in /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php on line 116
+[02-Nov-2016 15:40:55 UTC] PHP Stack trace:
+[02-Nov-2016 15:40:55 UTC] PHP   1. {main}() /home/ubuntu/workspace/Assgt_07/Debug/Tests/test_DB_messages.php:0
+[02-Nov-2016 15:40:55 UTC] PHP   2. get_latest_messages() /home/ubuntu/workspace/Assgt_07/Debug/Tests/test_DB_messages.php:79
+[02-Nov-2016 15:43:25 UTC] PHP Fatal error:  Call to undefined function int() in /home/ubuntu/workspace/Assgt_07/Debug/Model/DB_messages_with_errors.php on line 116
+[02-Nov-2016 15:43:25 UTC] PHP Stack trace:
+[02-Nov-2016 15:43:25 UTC] PHP   1. {main}() /home/ubuntu/workspace/Assgt_07/Debug/Tests/test_DB_messages.php:0
+[02-Nov-2016 15:43:25 UTC] PHP   2. get_latest_messages() /home/ubuntu/workspace/Assgt_07/Debug/Tests/test_DB_messages.php:79
